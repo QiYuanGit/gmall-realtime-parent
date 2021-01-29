@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-    <property name="LOG_HOME" value="e:/logs" />
+    <property name="LOG_HOME" value="/opt/module/rt_gmall/gmall0820" />
     <!--记录日志的方式  打印到控制台-->
     <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
