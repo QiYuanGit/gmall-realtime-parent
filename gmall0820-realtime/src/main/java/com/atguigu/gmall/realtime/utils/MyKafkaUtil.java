@@ -2,6 +2,7 @@ package com.atguigu.gmall.realtime.utils;
 
 import org.apache.flink.api.common.serialization.SimpleStringSchema;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
+import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 
 import java.util.Properties;
@@ -20,5 +21,10 @@ public class MyKafkaUtil {
         props.setProperty(ConsumerConfig.GROUP_ID_CONFIG,groupId);
         props.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,kafkaServer);
         return new FlinkKafkaConsumer<String>(topic,new SimpleStringSchema(),props);
+    }
+
+    //封装FlinkKafkaProducer
+    public static FlinkKafkaProducer<String> getKafkaSink(String topic){
+        return new FlinkKafkaProducer<String>(kafkaServer,topic,new SimpleStringSchema());
     }
 }

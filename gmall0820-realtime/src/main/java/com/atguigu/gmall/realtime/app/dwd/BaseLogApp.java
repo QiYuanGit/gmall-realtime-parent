@@ -19,6 +19,7 @@ import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.ProcessFunction;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
+import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer;
 import org.apache.flink.util.Collector;
 import org.apache.flink.util.OutputTag;
 
@@ -31,6 +32,10 @@ import java.util.Date;
  * Desc: 准备用户行为日志的DWD层
  */
 public class BaseLogApp {
+    private static final String TOPIC_START = "dwd_start_log";
+    private static final String TOPIC_DISPLAY = "dwd_display_log";
+    private static final String TOPIC_PAGE = "dwd_page_log";
+
     public static void main(String[] args) throws Exception {
         //TODO 1.准备环境
         //1.1 创建Flink流执行环境
@@ -178,6 +183,18 @@ public class BaseLogApp {
         pageDS.print("page>>>>");
         startDS.print("start>>>>");
         displayDS.print("display>>>>");
+
+        //TODO 6.将不同流的数据写回到kafka的不同topic中
+        FlinkKafkaProducer<String> startSink = MyKafkaUtil.getKafkaSink(TOPIC_START);
+        startDS.addSink(startSink);
+
+        FlinkKafkaProducer<String> displaySink = MyKafkaUtil.getKafkaSink(TOPIC_DISPLAY);
+        displayDS.addSink(displaySink);
+
+        FlinkKafkaProducer<String> pageSink = MyKafkaUtil.getKafkaSink(TOPIC_PAGE);
+        pageDS.addSink(pageSink);
+
+
 
         env.execute();
 
