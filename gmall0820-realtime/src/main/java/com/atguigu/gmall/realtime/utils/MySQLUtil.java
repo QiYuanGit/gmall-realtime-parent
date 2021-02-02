@@ -60,7 +60,7 @@ public class MySQLUtil {
                 //对查询的所有列进行遍历，获取每一列的名称
                 for (int i = 1; i <= metaData.getColumnCount(); i++) {
                     String columnName = metaData.getColumnName(i);
-                    String propertyName = "";
+                    String propertyName = columnName;
                     if(underScoreToCamel){
                         //如果指定将下划线转换为驼峰命名法的值为 true，通过guava工具类，将表中的列转换为类属性的驼峰命名法的形式
                         propertyName = CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL, columnName);

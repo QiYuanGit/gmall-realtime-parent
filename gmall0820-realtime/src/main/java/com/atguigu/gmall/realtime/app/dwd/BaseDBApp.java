@@ -8,6 +8,7 @@ import com.atguigu.gmall.realtime.utils.MyKafkaUtil;
 import com.google.gson.JsonObject;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.common.functions.RichMapFunction;
+import org.apache.flink.api.common.restartstrategy.RestartStrategies;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.runtime.state.filesystem.FsStateBackend;
 import org.apache.flink.streaming.api.CheckpointingMode;
@@ -33,9 +34,11 @@ public class BaseDBApp {
         //1.2 设置并新度
         env.setParallelism(4);
         //1.3 开启Checkpoint，并设置相关的参数
-        env.enableCheckpointing(5000, CheckpointingMode.EXACTLY_ONCE);
-        env.getCheckpointConfig().setCheckpointTimeout(60000);
-        env.setStateBackend(new FsStateBackend("hdfs://hadoop202:8020/gmall/checkpoint/basedbapp"));
+        //env.enableCheckpointing(5000, CheckpointingMode.EXACTLY_ONCE);
+        //env.getCheckpointConfig().setCheckpointTimeout(60000);
+        //env.setStateBackend(new FsStateBackend("hdfs://hadoop202:8020/gmall/checkpoint/basedbapp"));
+        ////重启策略
+        //env.setRestartStrategy(RestartStrategies.noRestart());
 
         //TODO 2.从Kafka的ODS层读取数据
         String topic = "ods_base_db_m";
@@ -48,13 +51,14 @@ public class BaseDBApp {
         //TODO 3.对DS中数据进行结构的转换      String-->Json
         //jsonStrDS.map(JSON::parseObject);
         SingleOutputStreamOperator<JSONObject> jsonObjDS = jsonStrDS.map(jsonStr -> JSON.parseObject(jsonStr));
+        //jsonStrDS.print("json>>>>");
 
         //TODO 4.对数据进行ETL   如果table为空 或者 data为空，或者长度<3  ，将这样的数据过滤掉
         SingleOutputStreamOperator<JSONObject> filteredDS = jsonObjDS.filter(
             jsonObj -> {
                 boolean flag = jsonObj.getString("table") != null
                     && jsonObj.getJSONObject("data") != null
-                    && jsonObj.getString("data").length() >= 3;
+                    && jsonObj.getString("data").length() > 3;
                 return flag;
             }
         );
@@ -72,6 +76,9 @@ public class BaseDBApp {
 
         //5.3获取侧输出流    写到Hbase的数据
         DataStream<JSONObject> hbaseDS = kafkaDS.getSideOutput(hbaseTag);
+
+        kafkaDS.print("事实>>>>");
+        hbaseDS.print("维度>>>>");
 
         env.execute();
     }
