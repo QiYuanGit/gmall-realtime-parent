@@ -2,6 +2,7 @@ package com.atguigu.gmall.realtime.app.dwd;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.atguigu.gmall.realtime.app.func.DimSink;
 import com.atguigu.gmall.realtime.app.func.TableProcessFunction;
 import com.atguigu.gmall.realtime.bean.TableProcess;
 import com.atguigu.gmall.realtime.utils.MyKafkaUtil;
@@ -9,6 +10,7 @@ import com.google.gson.JsonObject;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.common.functions.RichMapFunction;
 import org.apache.flink.api.common.restartstrategy.RestartStrategies;
+import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.runtime.state.filesystem.FsStateBackend;
 import org.apache.flink.streaming.api.CheckpointingMode;
@@ -17,9 +19,17 @@ import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.ProcessFunction;
+import org.apache.flink.streaming.api.functions.sink.RichSinkFunction;
+import org.apache.flink.streaming.api.functions.sink.SinkFunction;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
+import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer;
+import org.apache.flink.streaming.connectors.kafka.KafkaSerializationSchema;
 import org.apache.flink.util.Collector;
 import org.apache.flink.util.OutputTag;
+import org.apache.kafka.clients.producer.ProducerRecord;
+
+import javax.annotation.Nullable;
+import java.sql.Connection;
 
 /**
  * Author: Felix
@@ -37,7 +47,9 @@ public class BaseDBApp {
         //env.enableCheckpointing(5000, CheckpointingMode.EXACTLY_ONCE);
         //env.getCheckpointConfig().setCheckpointTimeout(60000);
         //env.setStateBackend(new FsStateBackend("hdfs://hadoop202:8020/gmall/checkpoint/basedbapp"));
-        ////重启策略
+        //重启策略
+        // 如果说没有开启重启Checkpoint，那么重启策略就是noRestart
+        // 如果说没有开Checkpoint，那么重启策略会尝试自动帮你进行重启   重启Integer.MaxValue
         //env.setRestartStrategy(RestartStrategies.noRestart());
 
         //TODO 2.从Kafka的ODS层读取数据
@@ -79,6 +91,27 @@ public class BaseDBApp {
 
         kafkaDS.print("事实>>>>");
         hbaseDS.print("维度>>>>");
+
+        //TODO 6.将维度数据保存到Phoenix对应的维度表中
+        hbaseDS.addSink(new DimSink());
+
+        //TODO 7.将事实数据写回到kafka的dwd层
+        FlinkKafkaProducer<JSONObject> kafkaSink = MyKafkaUtil.getKafkaSinkBySchema(
+            new KafkaSerializationSchema<JSONObject>() {
+                @Override
+                public void open(SerializationSchema.InitializationContext context) throws Exception {
+                    System.out.println("kafka序列化");
+                }
+                @Override
+                public ProducerRecord<byte[], byte[]> serialize(JSONObject jsonObj, @Nullable Long timestamp) {
+                    String sinkTopic = jsonObj.getString("sink_table");
+                    JSONObject dataJsonObj = jsonObj.getJSONObject("data");
+                    return new ProducerRecord<>(sinkTopic,dataJsonObj.toString().getBytes());
+                }
+            }
+        );
+
+        kafkaDS.addSink(kafkaSink);
 
         env.execute();
     }
