@@ -45,9 +45,9 @@ public class BaseLogApp {
 
         //1.3设置Checkpoint
         //每5000ms开始一次checkpoint，模式是EXACTLY_ONCE（默认）
-        env.enableCheckpointing(5000, CheckpointingMode.EXACTLY_ONCE);
-        env.getCheckpointConfig().setCheckpointTimeout(60000);
-        env.setStateBackend(new FsStateBackend("hdfs://hadoop202:8020/gmall/checkpoint/baselogApp"));
+        //env.enableCheckpointing(5000, CheckpointingMode.EXACTLY_ONCE);
+        //env.getCheckpointConfig().setCheckpointTimeout(60000);
+        //env.setStateBackend(new FsStateBackend("hdfs://hadoop202:8020/gmall/checkpoint/baselogApp"));
 
         //System.setProperty("HADOOP_USER_NAME","atguigu");
 
@@ -151,7 +151,10 @@ public class BaseLogApp {
                         //如果是启动日志，输出到启动侧输出流
                         ctx.output(startTag, dataStr);
                     } else {
-                        //如果不是启动日志，获取曝光日志标记
+                        //如果不是启动日志  说明是页面日志 ，输出到主流
+                        out.collect(dataStr);
+
+                        //如果不是启动日志，获取曝光日志标记（曝光日志中也携带了页面）
                         JSONArray displays = jsonObj.getJSONArray("displays");
                         //判断是否为曝光日志
                         if (displays != null && displays.size() > 0) {
@@ -165,9 +168,6 @@ public class BaseLogApp {
                                 displaysJsonObj.put("page_id", pageId);
                                 ctx.output(displayTag, displaysJsonObj.toString());
                             }
-                        } else {
-                            //如果不是曝光日志，说明是页面日志 ，输出到主流
-                            out.collect(dataStr);
                         }
 
                     }
