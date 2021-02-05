@@ -2,6 +2,7 @@ package com.atguigu.gmall.realtime.app.func;
 
 import com.alibaba.fastjson.JSONObject;
 import com.atguigu.gmall.realtime.common.GmallConfig;
+import com.atguigu.gmall.realtime.utils.DimUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.sink.RichSinkFunction;
@@ -63,7 +64,13 @@ public class DimSink extends RichSinkFunction<JSONObject> {
                     ps.close();
                 }
             }
+
+            //如果当前做的是更新操作，需要将Redis中缓存的数据清除掉
+            if(jsonObj.getString("type").equals("update")){
+                DimUtil.deleteCached(tableName,dataJsonObj.getString("id"));
+            }
         }
+
 
     }
 

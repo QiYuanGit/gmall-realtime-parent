@@ -48,7 +48,7 @@ public class UserJumpDetailApp {
         String sinkTopic = "dwm_user_jump_detail";
 
         FlinkKafkaConsumer<String> kafkaSource = MyKafkaUtil.getKafkaSource(sourceTopic, groupId);
-        DataStreamSource<String> jsonStrDS = env.addSource(kafkaSource);
+        //DataStreamSource<String> dataStream = env.addSource(kafkaSource);
 
         DataStream<String> dataStream = env
             .fromElements(
