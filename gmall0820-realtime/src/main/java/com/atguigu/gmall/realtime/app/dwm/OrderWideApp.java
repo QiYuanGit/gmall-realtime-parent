@@ -1,6 +1,8 @@
 package com.atguigu.gmall.realtime.app.dwm;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.atguigu.gmall.realtime.app.func.DimAsyncFunction;
 import com.atguigu.gmall.realtime.bean.OrderDetail;
 import com.atguigu.gmall.realtime.bean.OrderInfo;
 import com.atguigu.gmall.realtime.bean.OrderWide;
@@ -9,6 +11,7 @@ import org.apache.flink.api.common.eventtime.SerializableTimestampAssigner;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.functions.RichMapFunction;
 import org.apache.flink.configuration.Configuration;
+import org.apache.flink.streaming.api.datastream.AsyncDataStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.datastream.KeyedStream;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
@@ -20,6 +23,8 @@ import org.apache.flink.util.Collector;
 
 import java.text.SimpleDateFormat;
 import java.time.Duration;
+import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Author: Felix
@@ -156,8 +161,45 @@ public class OrderWideApp {
 
 
 
-        orderWideDS.print("orderWide>>>>");
+        //orderWideDS.print("orderWide>>>>");
 
+        //TODO 7.关联用户维度
+        AsyncDataStream.unorderedWait(
+            orderWideDS,
+            new DimAsyncFunction<OrderWide>("DIM_USER_INFO") {
+                @Override
+                public String getKey(OrderWide orderWide) {
+                    return orderWide.getUser_id().toString();
+                }
+
+                @Override
+                public void join(OrderWide orderWide, JSONObject dimInfoJsonObj) throws Exception {
+                    //获取用户生日
+                    String birthday = dimInfoJsonObj.getString("BIRTHDAY");
+                    //定义日期转换工具类
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                    //将生日字符串转换为日期对象
+                    Date birthdayDate = sdf.parse(birthday);
+                    //获取生日日期的毫秒数
+                    Long birthdayTs = birthdayDate.getTime();
+
+                    //获取当前时间的毫秒数
+                    Long curTs = System.currentTimeMillis();
+
+                    //年龄毫秒数
+                    Long ageTs = curTs - birthdayTs;
+                    //转换为年龄
+                    Long ageLong = ageTs / 1000L / 60L / 60L / 24L / 365L;
+                    Integer age = ageLong.intValue();
+
+                    //将维度中的年龄赋值给订单宽表中的属性
+                    orderWide.setUser_age(age);
+
+                    //将维度中的性别赋值给订单宽表中的属性
+                    orderWide.setUser_gender(dimInfoJsonObj.getString("GENDER"));
+                }
+            },
+            60, TimeUnit.SECONDS);
         env.execute();
     }
 }

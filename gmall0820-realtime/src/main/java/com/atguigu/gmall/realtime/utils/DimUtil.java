@@ -146,9 +146,9 @@ public class DimUtil {
 
     public static void main(String[] args) {
         //System.out.println(PhoenixUtil.queryList("select * from DIM_BASE_TRADEMARK", JSONObject.class));
-        //JSONObject dimInfo = DimUtil.getDimInfoNoCache("DIM_BASE_TRADEMARK", Tuple2.of("id", "13"));
+        //JSONObject dimInfo = DimUtil.getDimInfoNoCache("DIM_BASE_TRADEMARK", Tuple2.of("id", "14"));
 
-        JSONObject dimInfo = DimUtil.getDimInfo("DIM_BASE_TRADEMARK", "13");
+        JSONObject dimInfo = DimUtil.getDimInfo("DIM_BASE_TRADEMARK", "14");
 
         System.out.println(dimInfo);
     }
