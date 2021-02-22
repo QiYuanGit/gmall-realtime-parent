@@ -48,9 +48,9 @@ public class UserJumpDetailApp {
         String sinkTopic = "dwm_user_jump_detail";
 
         FlinkKafkaConsumer<String> kafkaSource = MyKafkaUtil.getKafkaSource(sourceTopic, groupId);
-        //DataStreamSource<String> dataStream = env.addSource(kafkaSource);
+        DataStreamSource<String> dataStream = env.addSource(kafkaSource);
 
-        DataStream<String> dataStream = env
+        /*DataStream<String> dataStream = env
             .fromElements(
                 "{\"common\":{\"mid\":\"101\"},\"page\":{\"page_id\":\"home\"},\"ts\":10000} ",
                 "{\"common\":{\"mid\":\"102\"},\"page\":{\"page_id\":\"home\"},\"ts\":12000}",
@@ -58,7 +58,7 @@ public class UserJumpDetailApp {
                     "\"home\"},\"ts\":150000} ",
                 "{\"common\":{\"mid\":\"102\"},\"page\":{\"page_id\":\"good_list\",\"last_page_id\":" +
                     "\"detail\"},\"ts\":300000} "
-            );
+            );*/
 
 
 
