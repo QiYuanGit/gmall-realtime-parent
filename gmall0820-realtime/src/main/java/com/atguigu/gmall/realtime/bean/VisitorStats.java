@@ -3,6 +3,9 @@ package com.atguigu.gmall.realtime.bean;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
+import java.beans.Transient;
+import java.lang.annotation.Target;
+
 /**
  * Author: Felix
  * Date: 2021/2/22
