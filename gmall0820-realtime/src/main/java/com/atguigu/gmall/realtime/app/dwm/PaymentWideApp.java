@@ -117,6 +117,7 @@ public class PaymentWideApp {
                 }
             );
 
+        paymentWideDS.print(">>>>");
         //TODO 7.将数据写到kafka的dwm层
         paymentWideDS.map(
             paymentWide->JSON.toJSONString(paymentWide)

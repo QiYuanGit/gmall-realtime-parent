@@ -260,6 +260,7 @@ public class VisitorStatsApp {
                         String endDate = sdf.format(new Date(context.window().getEnd()));
                         visitorStats.setStt(startDate);
                         visitorStats.setEdt(endDate);
+                        visitorStats.setTs(new Date().getTime());
                         out.collect(visitorStats);
                     }
                 }

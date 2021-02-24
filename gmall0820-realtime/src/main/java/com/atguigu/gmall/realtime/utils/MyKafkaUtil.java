@@ -6,6 +6,7 @@ import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer;
 import org.apache.flink.streaming.connectors.kafka.KafkaSerializationSchema;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.clients.producer.ProducerRecord;
 
 import java.util.Properties;
 
@@ -17,6 +18,7 @@ import java.util.Properties;
 public class MyKafkaUtil {
     private static String KAFKA_SERVER = "hadoop202:9092,hadoop203:9092,hadoop204:9092";
     private static String DEFAULT_TOPIC = "DEFAULT_DATA";
+
 
     //获取FlinkKafkaConsumer
     public static FlinkKafkaConsumer<String> getKafkaSource(String topic, String groupId) {
@@ -40,5 +42,15 @@ public class MyKafkaUtil {
         return new FlinkKafkaProducer<T>(DEFAULT_TOPIC, kafkaSerializationSchema, props, FlinkKafkaProducer.Semantic.EXACTLY_ONCE);
     }
 
+    //拼接Kafka相关属性到DDL
+    public static String getKafkaDDL(String topic,String groupId){
+        String ddl="'connector' = 'kafka', " +
+            " 'topic' = '"+topic+"',"   +
+            " 'properties.bootstrap.servers' = '"+ KAFKA_SERVER +"', " +
+            " 'properties.group.id' = '"+groupId+ "', " +
+            "  'format' = 'json', " +
+            "  'scan.startup.mode' = 'latest-offset'  ";
+        return  ddl;
+    }
 
 }

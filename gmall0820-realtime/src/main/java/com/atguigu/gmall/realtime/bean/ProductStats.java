@@ -68,10 +68,10 @@ public class ProductStats {
     BigDecimal refund_amount = BigDecimal.ZERO;
 
     @Builder.Default
-    Long comment_ct = 0L;//评论订单数
+    Long comment_ct = 0L;//评论数
 
     @Builder.Default
-    Long good_comment_ct = 0L; //好评订单数
+    Long good_comment_ct = 0L; //好评数
 
     @Builder.Default
     @TransientSink

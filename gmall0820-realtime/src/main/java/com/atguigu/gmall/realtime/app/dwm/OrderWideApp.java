@@ -321,7 +321,7 @@ public class OrderWideApp {
             }, 60, TimeUnit.SECONDS);
 
 
-        //orderWideWithTmDS.print(">>>>>");
+        orderWideWithTmDS.print(">>>>>");
 
         //TODO 11.将关联后的订单宽表数据写回到kafka的DWM层
         orderWideWithTmDS
