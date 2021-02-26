@@ -67,7 +67,7 @@ public class GmallConstant {
     public static final String ACTIVITY_RULE_TYPE_DZ ="3102";
     public static final String ACTIVITY_RULE_TYPE_ZK="3103";
 
-
+    //关键词类型
     public static final String KEYWORD_SEARCH="SEARCH";
     public static final String KEYWORD_CLICK="CLICK";
     public static final String KEYWORD_CART="CART";
