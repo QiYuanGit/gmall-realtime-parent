@@ -3,6 +3,7 @@ package com.atguigu.gmall.realtime.app.dws;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.atguigu.gmall.realtime.app.func.DimAsyncFunction;
 import com.atguigu.gmall.realtime.common.GmallConstant;
 import com.atguigu.gmall.realtime.bean.OrderWide;
@@ -416,6 +417,11 @@ public class ProductStatsApp {
             ClickHouseUtil
                 .<ProductStats>getJdbcSink("insert into product_stats_0820 values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
                 ));
+
+        //TODO 11.将统计的结果写回到kafka的dws层
+        productStatsWithCategoryDS
+            .map(productStat->JSON.toJSONString(productStat,new SerializeConfig(true)))
+            .addSink(MyKafkaUtil.getKafkaSink("dws_product_stats"));
 
         env.execute();
 

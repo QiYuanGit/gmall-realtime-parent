@@ -42,7 +42,7 @@ public class BaseDBApp {
         //1.1 创建流处理执行环境
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         //1.2 设置并新度
-        env.setParallelism(4);
+        env.setParallelism(1);
         //1.3 开启Checkpoint，并设置相关的参数
         //env.enableCheckpointing(5000, CheckpointingMode.EXACTLY_ONCE);
         //env.getCheckpointConfig().setCheckpointTimeout(60000);

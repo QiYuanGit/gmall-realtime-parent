@@ -4,7 +4,6 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.atguigu.gmall.realtime.utils.MyKafkaUtil;
-import com.sun.xml.internal.bind.v2.TODO;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.common.functions.RichMapFunction;
 import org.apache.flink.api.common.state.ValueState;
@@ -41,7 +40,7 @@ public class BaseLogApp {
         //1.1 创建Flink流执行环境
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         //1.2设置并行度
-        env.setParallelism(4);
+        env.setParallelism(1);
 
         //1.3设置Checkpoint
         //每5000ms开始一次checkpoint，模式是EXACTLY_ONCE（默认）

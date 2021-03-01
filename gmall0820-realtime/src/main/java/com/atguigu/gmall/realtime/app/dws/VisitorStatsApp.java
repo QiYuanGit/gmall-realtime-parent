@@ -59,7 +59,7 @@ public class VisitorStatsApp {
         //1.1 设置流式处理环境
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         //1.2 设置并行度
-        env.setParallelism(4);
+        env.setParallelism(1);
         /*
         //1.3 检查点CK相关设置
         env.enableCheckpointing(5000, CheckpointingMode.AT_LEAST_ONCE);
