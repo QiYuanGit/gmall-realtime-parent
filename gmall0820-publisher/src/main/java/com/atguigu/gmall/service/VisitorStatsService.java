@@ -13,4 +13,6 @@ public interface VisitorStatsService {
 
     List<VisitorStats> getVisitorStatsByNewFlag(int date);
 
+    List<VisitorStats> getVisitorStatsByHr(int date);
+
 }
